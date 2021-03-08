@@ -105,7 +105,10 @@ func (g *gopt) run() error {
 	}
 
 	if g.dest != "" {
-		path := filepath.FromSlash(wd + "/" + g.dest)
+		path := filepath.FromSlash(g.dest)
+		if !filepath.IsAbs(path) {
+			path = filepath.FromSlash(wd + "/" + g.dest)
+		}
 		dir := filepath.Dir(path)
 		if _, err := os.Stat(dir); err != nil {
 			if os.IsNotExist(err) {
