@@ -1,5 +1,9 @@
 # gopt
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/msmsny/gopt)](https://goreportcard.com/report/github.com/msmsny/gopt)
+[![Test](https://github.com/msmsny/gopt/actions/workflows/test.yml/badge.svg)](https://github.com/msmsny/gopt/actions/workflows/test.yml)
+[![Coverage Status](https://coveralls.io/repos/github/msmsny/gopt/badge.svg?branch=master)](https://coveralls.io/github/msmsny/gopt?branch=master)
+
 Functional options code generator.
 
 ## Install
