@@ -20,6 +20,7 @@ func NewGoptCommand() *cobra.Command {
 		packageName *string
 		destination *string
 		evaluate    *bool
+		flagErrors  []error
 	)
 	cmds := &cobra.Command{
 		Use:           "gopt",
@@ -27,6 +28,15 @@ func NewGoptCommand() *cobra.Command {
 		Long:          "gopt generates functional options pattern code",
 		SilenceErrors: true,
 		SilenceUsage:  false,
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			for _, err := range flagErrors {
+				if err != nil {
+					return err
+				}
+			}
+
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			gopt := &gopt{
 				tpl: template.New("gopt").Funcs(map[string]interface{}{
@@ -55,9 +65,9 @@ func NewGoptCommand() *cobra.Command {
 	flags := cmds.Flags()
 	flags.SortFlags = false
 	name = flags.String("name", "", "functional options name to specify variadic functions arguments (required)")
-	cobra.MarkFlagRequired(flags, "name")
+	flagErrors = append(flagErrors, cobra.MarkFlagRequired(flags, "name"))
 	options = flags.StringSlice("options", []string{}, "option names and values, e.g.: foo:string,bar:int,baz:bool")
-	cobra.MarkFlagRequired(flags, "options")
+	flagErrors = append(flagErrors, cobra.MarkFlagRequired(flags, "options"))
 	packageName = flags.String("package", "", "output package name")
 	destination = flags.StringP("output", "o", "", "output file name")
 	evaluate = flags.Bool("evaluate", true, "output evaluateOptions")
