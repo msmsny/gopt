@@ -36,6 +36,8 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
+    - name: Build
+      run: go install .
     - name: Lint
       id: lint
       uses: golangci/golangci-lint-action@v2.5.1
@@ -45,8 +47,6 @@ jobs:
         skip-pkg-cache: true
         skip-build-cache: true
       continue-on-error: true
-    - name: Build
-      run: go install .
     - name: Test
       run: go test -v -count 1 -coverprofile coverage.out ./...
     - name: Gcov to lcov
