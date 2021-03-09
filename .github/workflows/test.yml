@@ -36,8 +36,6 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
-    - name: Build
-      run: go install .
     - name: Lint
       id: lint
       uses: golangci/golangci-lint-action@v2.5.1
@@ -61,3 +59,14 @@ jobs:
     - name: Lint result
       if: steps.lint.outcome != 'success'
       run: exit 1
+    - name: Build
+      run: |
+        go install .
+        gopt --name sample --options foo:string,bar:int,baz:bool --package main -o test/cmd/buildtest/options.go
+        go build -tags test ./test/cmd/buildtest
+        result="$(./buildtest)"
+        want='&main.test{required:"required", foo:"foo", bar:1, baz:true}'
+        if [ "${result}" != "${want}" ]; then
+          echo "unexpected result: ${result}, want: ${want}"
+          exit 1
+        fi
