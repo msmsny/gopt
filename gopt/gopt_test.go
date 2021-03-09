@@ -38,6 +38,13 @@ func TestCommand(t *testing.T) {
 			evaluate:    "false",
 			fileName:    "testdata/withoutevaluate.go",
 		},
+		"format": {
+			name:        "sample",
+			options:     "foo:string,bar:int,baz:bool,qux:int64,quux:string",
+			packageName: "testdata",
+			evaluate:    "true",
+			fileName:    "testdata/format.go",
+		},
 	}
 
 	for testCase, tt := range testCases {
