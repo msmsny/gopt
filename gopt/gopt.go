@@ -43,6 +43,15 @@ func NewGoptCommand() *cobra.Command {
 					"title": func(name string) string {
 						return strings.Title(name)
 					},
+					"hasDuration": func(opts []*templateOption) bool {
+						for _, opt := range opts {
+							if opt.Type == "time.Duration" {
+								return true
+							}
+						}
+
+						return false
+					},
 				}),
 				params: &templateParams{
 					Name:        *name,
@@ -157,6 +166,9 @@ func parseOptions(opts []string) ([]*templateOption, error) {
 			tplOpt := &templateOption{
 				Name: nameType[0],
 				Type: nameType[1],
+			}
+			if nameType[1] == "duration" {
+				tplOpt.Type = "time.Duration"
 			}
 			tplOpts = append(tplOpts, tplOpt)
 		default:

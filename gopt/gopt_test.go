@@ -45,6 +45,13 @@ func TestCommand(t *testing.T) {
 			evaluate:    "true",
 			fileName:    "testdata/format.go",
 		},
+		"withDuration": {
+			name:        "sample",
+			options:     "foo:string,bar:int,baz:duration",
+			packageName: "testdata",
+			evaluate:    "true",
+			fileName:    "testdata/withduration.go",
+		},
 	}
 
 	for testCase, tt := range testCases {

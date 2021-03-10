@@ -6,6 +6,12 @@ func uberGoStyleOptionTemplate() []byte {
 package {{.PackageName}}
 
 {{end -}}
+{{- if (hasDuration .Options) -}}
+import (
+	"time"
+)
+
+{{end -}}
 {{- if .Evaluate -}}
 func evaluateOptions(options []{{title .Name}}Option) *{{.Name}}Options {
 	opts := &{{.Name}}Options{}

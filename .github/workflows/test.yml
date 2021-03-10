@@ -64,10 +64,10 @@ jobs:
     - name: Generate options and execute
       if: "matrix.os != 'windows-latest'"
       run: |
-        gopt --name sample --options foo:string,bar:int,baz:bool --package main -o test/cmd/buildtest/options.go
+        gopt --name sample --options foo:string,bar:int,baz:bool,qux:duration --package main -o test/cmd/buildtest/options.go
         go build -tags test ./test/cmd/buildtest
         result="$(./buildtest)"
-        want='&main.test{required:"required", foo:"foo", bar:1, baz:true}'
+        want='&main.test{required:"required", foo:"foo", bar:1, baz:true, qux:1000000000}'
         if [ "${result}" != "${want}" ]; then
           echo "unexpected result: ${result}, want: ${want}"
           exit 1
