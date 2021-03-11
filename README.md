@@ -15,7 +15,7 @@ $ go get github.com/msmsny/gopt
 ## Usage
 
 ```bash
-$ goopt --help
+$ gopt --help
 gopt generates functional options pattern code
 
 Usage:
