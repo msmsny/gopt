@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -40,12 +41,15 @@ func NewGoptCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			gopt := &gopt{
 				tpl: template.New("gopt").Funcs(map[string]interface{}{
+					"toLower": func(name string) string {
+						return strings.ToLower(name)
+					},
 					"title": func(name string) string {
 						return strings.Title(name)
 					},
-					"hasDuration": func(opts []*templateOption) bool {
+					"hasImport": func(opts []*templateOption) bool {
 						for _, opt := range opts {
-							if opt.Type == "time.Duration" {
+							if opt.IsDuration() || opt.IsPackage() {
 								return true
 							}
 						}
@@ -92,8 +96,32 @@ type templateParams struct {
 }
 
 type templateOption struct {
-	Name string
-	Type string
+	Name    string
+	Type    string
+	Package *templatePackage
+}
+
+func (o *templateOption) IsDuration() bool {
+	return o.Type == "time.Duration"
+}
+
+func (o *templateOption) IsPackage() bool {
+	return o.Package != nil
+}
+
+type templatePackage struct {
+	Prefix string // []*
+	Base   string // path/to
+	Name   string // repo
+	Type   string // MyType
+}
+
+func (i *templatePackage) IsFullPath() bool {
+	return i.Base != "" && i.Name != ""
+}
+
+func (i *templatePackage) HasName() bool {
+	return i.Base == "" && i.Name != ""
 }
 
 type gopt struct {
@@ -153,6 +181,9 @@ func (g *gopt) run() error {
 	return nil
 }
 
+// prefix, path(domain), name, type
+var packageTypeRegexp = regexp.MustCompile(`^(?:((?:\[\])?\*?)(?:(.+)\/)?([a-zA-Z0-9]+)(?:\.))?([a-zA-Z0-9]+)$`)
+
 // parseOptions parse names and types like "foo:string,bar:int,baz:bool"
 func parseOptions(opts []string) ([]*templateOption, error) {
 	var tplOpts []*templateOption
@@ -162,6 +193,13 @@ func parseOptions(opts []string) ([]*templateOption, error) {
 			return nil, fmt.Errorf("invalid options format: %s", opt)
 		}
 		switch nameType[1] {
+		// TODO cover
+		//  int  int8  int16  int32  int64
+		//  uint uint8 uint16 uint32 uint64 uintptr
+		//  byte // alias for uint8
+		//  rune // alias for int32
+		//  float32 float64
+		//  complex64 complex128
 		case "string", "int", "int64", "bool", "duration", "stringSlice":
 			tplOpt := &templateOption{
 				Name: nameType[0],
@@ -172,8 +210,23 @@ func parseOptions(opts []string) ([]*templateOption, error) {
 			}
 			tplOpts = append(tplOpts, tplOpt)
 		default:
-			// TODO other than standard type
-			return nil, fmt.Errorf("option type %s must be string, int, int64, bool, duration or stringSlice", nameType[1])
+			packageType := packageTypeRegexp.FindStringSubmatch(nameType[1])
+			if packageType == nil {
+				return nil, fmt.Errorf("option type %s must be string, int, int64, bool, duration, stringSlice or custom type", nameType[1])
+			}
+			if len(packageType) != 5 {
+				return nil, fmt.Errorf("custom type must be 5 columns of original value, prefix, base path, name, type")
+			}
+			tplOpt := &templateOption{
+				Name: nameType[0],
+				Package: &templatePackage{
+					Prefix: packageType[1],
+					Base:   packageType[2],
+					Name:   packageType[3],
+					Type:   packageType[4],
+				},
+			}
+			tplOpts = append(tplOpts, tplOpt)
 		}
 	}
 
