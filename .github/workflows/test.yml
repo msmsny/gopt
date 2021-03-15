@@ -29,6 +29,8 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: ${{ matrix.go-version }}
+    - name: Setup test
+      run: go get -v golang.org/x/tools/cmd/goimports
     - name: Cache
       uses: actions/cache@v2
       with:
@@ -64,10 +66,10 @@ jobs:
     - name: Generate options and execute
       if: "matrix.os != 'windows-latest'"
       run: |
-        gopt --name sample --options foo:string,bar:int,baz:bool,qux:duration --package main -o test/cmd/buildtest/options.go
+        gopt --name sample --options 'foo:string,bar:int,baz:bool,qux:duration,quux:*net/http.Client' --package main -o test/cmd/buildtest/options.go
         go build -tags test ./test/cmd/buildtest
         result="$(./buildtest)"
-        want='&main.test{required:"required", foo:"foo", bar:1, baz:true, qux:1000000000}'
+        want='&main.test{required:"required", foo:"foo", bar:1, baz:true, qux:1000000000, quux:(*http.Client)(nil)}, quux: &http.Client{Transport:http.RoundTripper(nil), CheckRedirect:(func(*http.Request, []*http.Request) error)(nil), Jar:http.CookieJar(nil), Timeout:0}'
         if [ "${result}" != "${want}" ]; then
           echo "unexpected result: ${result}, want: ${want}"
           exit 1
