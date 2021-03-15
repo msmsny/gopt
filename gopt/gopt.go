@@ -158,7 +158,7 @@ func (g *gopt) run() error {
 		return fmt.Errorf("t.Execute: %s", err)
 	}
 
-	contents := []byte{}
+	var contents []byte
 	if g.formatImports {
 		cmd := exec.Command("goimports")
 		stdin, err := cmd.StdinPipe()
