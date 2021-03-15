@@ -27,7 +27,7 @@ Flags:
       --package string    output package name
   -o, --output string     output file name
       --evaluate          output evaluateOptions (default true)
-      --format-imports    format imports statement by goimports
+      --format-imports    format import statement by goimports
   -h, --help              help for gopt
 ```
 
@@ -192,7 +192,7 @@ func (o loggerOption) apply(opts *sampleOptions) { opts.baz = o.logger }
 func WithBaz(logger *zap.Logger) SampleOption { return loggerOption{logger: logger} }
 ```
 
-Format imports statement (requires [goimports](https://pkg.go.dev/golang.org/x/tools/cmd/goimports))
+Format import statement (requires [goimports](https://pkg.go.dev/golang.org/x/tools/cmd/goimports))
 
 ```bash
 $ gopt --name sample --options 'foo:string,bar:duration,baz:*go.uber.org/zap.Logger' --package gopt --format-imports

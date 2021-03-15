@@ -93,7 +93,7 @@ func NewGoptCommand() *cobra.Command {
 	packageName = flags.String("package", "", "output package name")
 	destination = flags.StringP("output", "o", "", "output file name")
 	evaluate = flags.Bool("evaluate", true, "output evaluateOptions")
-	formatImports = flags.Bool("format-imports", false, "format imports statement by goimports")
+	formatImports = flags.Bool("format-imports", false, "format import statement by goimports")
 
 	return cmds
 }
