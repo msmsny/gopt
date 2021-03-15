@@ -11,46 +11,62 @@ import (
 
 func TestCommand(t *testing.T) {
 	testCases := map[string]struct {
-		name        string
-		options     string
-		packageName string
-		evaluate    string
-		fileName    string
+		name          string
+		options       string
+		packageName   string
+		evaluate      bool
+		fileName      string
+		formatImports bool
 	}{
 		"basic": {
 			name:        "sample",
 			options:     "foo:string,bar:int,baz:bool",
 			packageName: "",
-			evaluate:    "true",
+			evaluate:    true,
 			fileName:    "testdata/basic.go",
 		},
 		"withPackage": {
 			name:        "sample",
 			options:     "foo:string,bar:int,baz:bool",
 			packageName: "testdata",
-			evaluate:    "true",
+			evaluate:    true,
 			fileName:    "testdata/withpackage.go",
 		},
 		"withoutEvaluate": {
 			name:        "sample",
 			options:     "foo:string,bar:int,baz:bool",
 			packageName: "testdata",
-			evaluate:    "false",
+			evaluate:    false,
 			fileName:    "testdata/withoutevaluate.go",
 		},
 		"format": {
 			name:        "sample",
 			options:     "foo:string,bar:int,baz:bool,qux:int64,quux:string",
 			packageName: "testdata",
-			evaluate:    "true",
+			evaluate:    true,
 			fileName:    "testdata/format.go",
 		},
 		"withDuration": {
 			name:        "sample",
 			options:     "foo:string,bar:int,baz:duration",
 			packageName: "testdata",
-			evaluate:    "true",
+			evaluate:    true,
 			fileName:    "testdata/withduration.go",
+		},
+		"withPackageType": {
+			name:        "sample",
+			options:     "foo:string,bar:int,baz:*go.uber.org/zap.Logger",
+			packageName: "testdata",
+			evaluate:    true,
+			fileName:    "testdata/withpackagetype.go",
+		},
+		"formatImports": {
+			name:          "sample",
+			options:       "foo:string,bar:duration,baz:*go.uber.org/zap.Logger",
+			packageName:   "testdata",
+			evaluate:      true,
+			fileName:      "testdata/formatimports.go",
+			formatImports: true,
 		},
 	}
 
@@ -62,7 +78,12 @@ func TestCommand(t *testing.T) {
 			require.NoError(t, cmd.Flags().Set("options", tt.options))
 			require.NoError(t, cmd.Flags().Set("package", tt.packageName))
 			require.NoError(t, cmd.Flags().Set("output", destination))
-			require.NoError(t, cmd.Flags().Set("evaluate", tt.evaluate))
+			if !tt.evaluate {
+				require.NoError(t, cmd.Flags().Set("evaluate", "false"))
+			}
+			if tt.formatImports {
+				require.NoError(t, cmd.Flags().Set("format-imports", "true"))
+			}
 			require.NoError(t, cmd.Execute())
 
 			want, err := ioutil.ReadFile(tt.fileName)
