@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -16,12 +17,13 @@ import (
 
 func NewGoptCommand() *cobra.Command {
 	var (
-		name        *string
-		options     *[]string
-		packageName *string
-		destination *string
-		evaluate    *bool
-		flagErrors  []error
+		name          *string
+		options       *[]string
+		packageName   *string
+		destination   *string
+		evaluate      *bool
+		formatImports *bool
+		flagErrors    []error
 	)
 	cmds := &cobra.Command{
 		Use:           "gopt",
@@ -33,6 +35,12 @@ func NewGoptCommand() *cobra.Command {
 			for _, err := range flagErrors {
 				if err != nil {
 					return err
+				}
+			}
+
+			if *formatImports {
+				if _, err := exec.LookPath("goimports"); err != nil {
+					return fmt.Errorf(`--format-imports requires goimports, please install goimports by "go get golang.org/x/tools/cmd/goimports"`)
 				}
 			}
 
@@ -62,8 +70,9 @@ func NewGoptCommand() *cobra.Command {
 					PackageName: *packageName,
 					Evaluate:    *evaluate,
 				},
-				writer: os.Stdout,
-				dest:   *destination,
+				writer:        os.Stdout,
+				dest:          *destination,
+				formatImports: *formatImports,
 			}
 			tplOpts, err := parseOptions(*options)
 			if err != nil {
@@ -84,6 +93,7 @@ func NewGoptCommand() *cobra.Command {
 	packageName = flags.String("package", "", "output package name")
 	destination = flags.StringP("output", "o", "", "output file name")
 	evaluate = flags.Bool("evaluate", true, "output evaluateOptions")
+	formatImports = flags.Bool("format-imports", false, "format imports statement by goimports")
 
 	return cmds
 }
@@ -125,10 +135,11 @@ func (i *templatePackage) HasName() bool {
 }
 
 type gopt struct {
-	params *templateParams
-	tpl    *template.Template
-	writer io.Writer
-	dest   string
+	params        *templateParams
+	tpl           *template.Template
+	writer        io.Writer
+	dest          string
+	formatImports bool
 }
 
 func (g *gopt) run() error {
@@ -146,9 +157,29 @@ func (g *gopt) run() error {
 	if err := t.Execute(buf, g.params); err != nil {
 		return fmt.Errorf("t.Execute: %s", err)
 	}
-	contents, err := format.Source(buf.Bytes())
-	if err != nil {
-		return fmt.Errorf("format.Source: %s", err)
+
+	contents := []byte{}
+	if g.formatImports {
+		cmd := exec.Command("goimports")
+		stdin, err := cmd.StdinPipe()
+		if err != nil {
+			return fmt.Errorf("cmd.StdinPipe: %s", err)
+		}
+		if _, err := stdin.Write(buf.Bytes()); err != nil {
+			return fmt.Errorf("stdin.Write: %s", err)
+		}
+		if err := stdin.Close(); err != nil {
+			return fmt.Errorf("stdin.Close: %s", err)
+		}
+		contents, err = cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("cmd.CombinedOutput: %s", err)
+		}
+	} else {
+		contents, err = format.Source(buf.Bytes())
+		if err != nil {
+			return fmt.Errorf("format.Source: %s", err)
+		}
 	}
 
 	if g.dest != "" {
