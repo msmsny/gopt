@@ -236,8 +236,11 @@ func parseOptions(opts []string) ([]*templateOption, error) {
 				Name: nameType[0],
 				Type: nameType[1],
 			}
-			if nameType[1] == "duration" {
+			switch nameType[1] {
+			case "duration":
 				tplOpt.Type = "time.Duration"
+			case "stringSlice":
+				tplOpt.Type = "[]string"
 			}
 			tplOpts = append(tplOpts, tplOpt)
 		default:

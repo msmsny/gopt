@@ -25,6 +25,13 @@ func TestCommand(t *testing.T) {
 			evaluate:    true,
 			fileName:    "testdata/basic.go",
 		},
+		"withStringSlice": {
+			name:        "sample",
+			options:     "foo:string,bar:int,baz:stringSlice",
+			packageName: "testdata",
+			evaluate:    true,
+			fileName:    "testdata/withstringslice.go",
+		},
 		"withPackage": {
 			name:        "sample",
 			options:     "foo:string,bar:int,baz:bool",
