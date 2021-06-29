@@ -50,7 +50,10 @@ func NewGoptCommand() *cobra.Command {
 			gopt := &gopt{
 				tpl: template.New("gopt").Funcs(map[string]interface{}{
 					"toLower": func(name string) string {
-						return strings.ToLower(name)
+						if len(name) == 0 {
+							return name
+						}
+						return strings.ToLower(string(name[0])) + name[1:]
 					},
 					"title": func(name string) string {
 						return strings.Title(name)
