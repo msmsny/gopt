@@ -45,7 +45,7 @@ type {{.Name}}Options struct {
 {{- else if or $option.Package.IsFullPath $option.Package.HasName}}
 	{{$option.Name}} {{$option.Package.Prefix}}{{$option.Package.Name}}.{{$option.Package.Type}}
 {{- else}}
-	{{$option.Name}} {{$option.Package.Type}}
+	{{$option.Name}} {{$option.Package.Prefix}}{{$option.Package.Type}}
 {{- end}}
 {{- end}}
 }
@@ -58,12 +58,21 @@ func (o {{$option.Name}}Option) apply(opts *{{$.Name}}Options) { opts.{{$option.
 func With{{title $option.Name}}(value {{$option.Type}}) {{title $.Name}}Option { return {{$option.Name}}Option(value) }
 {{- else}}
 type {{toLower $option.Package.Type}}Option struct {
+{{- if or $option.Package.IsFullPath $option.Package.HasName}}
 	{{toLower $option.Package.Type}} {{$option.Package.Prefix}}{{$option.Package.Name}}.{{$option.Package.Type}}
+{{- else}}
+	{{toLower $option.Package.Type}} {{$option.Package.Prefix}}{{$option.Package.Type}}
+{{- end}}
 }
 
 func (o {{toLower $option.Package.Type}}Option) apply(opts *{{$.Name}}Options) { opts.{{$option.Name}} = o.{{toLower $option.Package.Type}} }
+{{- if or $option.Package.IsFullPath $option.Package.HasName}}
 
 func With{{title $option.Name}}({{toLower $option.Package.Type}} {{$option.Package.Prefix}}{{$option.Package.Name}}.{{$option.Package.Type}}) {{title $.Name}}Option { return {{toLower $option.Package.Type}}Option{ {{toLower $option.Package.Type}}: {{toLower $option.Package.Type}} } }
+{{- else}}
+
+func With{{title $option.Name}}({{toLower $option.Package.Type}} {{$option.Package.Prefix}}{{$option.Package.Type}}) {{title $.Name}}Option { return {{toLower $option.Package.Type}}Option{ {{toLower $option.Package.Type}}: {{toLower $option.Package.Type}} } }
+{{- end}}
 {{- end}}
 {{end -}}
 `)

@@ -75,6 +75,13 @@ func TestCommand(t *testing.T) {
 			fileName:      "testdata/formatimports.go",
 			formatImports: true,
 		},
+		"withLocalPackageType": {
+			name:        "sample",
+			options:     "foo:string,bar:int,baz:*LocalPackageType",
+			packageName: "testdata",
+			evaluate:    true,
+			fileName:    "testdata/withlocalpackagetype.go",
+		},
 	}
 
 	for testCase, tt := range testCases {

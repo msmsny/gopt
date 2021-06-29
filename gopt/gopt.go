@@ -60,7 +60,8 @@ func NewGoptCommand() *cobra.Command {
 					},
 					"hasImport": func(opts []*templateOption) bool {
 						for _, opt := range opts {
-							if opt.IsDuration() || opt.IsPackage() {
+							if opt.IsDuration() ||
+								(opt.IsPackage() && (opt.Package.IsFullPath() || opt.Package.HasName())) {
 								return true
 							}
 						}
@@ -216,7 +217,7 @@ func (g *gopt) run() error {
 }
 
 // prefix, path(domain), name, type
-var packageTypeRegexp = regexp.MustCompile(`^(?:((?:\[\])?\*?)(?:(.+)\/)?([a-zA-Z0-9]+)(?:\.))?([a-zA-Z0-9]+)$`)
+var packageTypeRegexp = regexp.MustCompile(`^(?:((?:\[\])?\*?))?(?:(.+)\/)?(?:([a-zA-Z0-9]+)(?:\.))?([a-zA-Z0-9]+)$`)
 
 // parseOptions parse names and types like "foo:string,bar:int,baz:bool"
 func parseOptions(opts []string) ([]*templateOption, error) {
