@@ -31,7 +31,7 @@ func NewGoptCommand() *cobra.Command {
 		Short:         "gopt generates functional options pattern code",
 		Long:          "gopt generates functional options pattern code",
 		SilenceErrors: true,
-		SilenceUsage:  false,
+		SilenceUsage:  true,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			for _, err := range flagErrors {
 				if err != nil {
