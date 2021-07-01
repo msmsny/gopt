@@ -1,6 +1,7 @@
 package gopt
 
 import (
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"testing"
@@ -119,4 +120,17 @@ func TestCommand(t *testing.T) {
 			assert.Equal(t, string(want), string(got))
 		})
 	}
+}
+
+func TestCommandError(t *testing.T) {
+	var (
+		name        = "sample"
+		options     = "foo:string,bar:int,baz:int32"
+		packageName = "testdata"
+	)
+	cmd := NewGoptCommand()
+	require.NoError(t, cmd.Flags().Set("name", name))
+	require.NoError(t, cmd.Flags().Set("options", options))
+	require.NoError(t, cmd.Flags().Set("package", packageName))
+	assert.Equal(t, fmt.Errorf("parseOptions: unsupported option type int32"), cmd.Execute())
 }

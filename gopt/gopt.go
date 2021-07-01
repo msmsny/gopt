@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
+	"go/types"
 	"html/template"
 	"io"
 	"os"
@@ -253,6 +254,10 @@ func parseOptions(opts []string) ([]*templateOption, error) {
 			}
 			tplOpts = append(tplOpts, tplOpt)
 		default:
+			// unsupported types
+			if obj := types.Universe.Lookup(nameType[1]); obj != nil {
+				return nil, fmt.Errorf("unsupported option type %s", nameType[1])
+			}
 			packageType := packageTypeRegexp.FindStringSubmatch(nameType[1])
 			if packageType == nil {
 				return nil, fmt.Errorf("option type %s must be string, int, int64, bool, duration, stringSlice or custom type", nameType[1])
