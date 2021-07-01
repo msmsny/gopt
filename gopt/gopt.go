@@ -94,7 +94,7 @@ func NewGoptCommand() *cobra.Command {
 	flags.SortFlags = false
 	name = flags.String("name", "", "functional options name to specify variadic functions arguments (required)")
 	flagErrors = append(flagErrors, cobra.MarkFlagRequired(flags, "name"))
-	options = flags.StringSlice("options", []string{}, "option names and values, e.g.: foo:string,bar:int,baz:bool")
+	options = flags.StringSlice("options", []string{}, "option names and types, e.g.: foo:string,bar:int,baz:bool")
 	flagErrors = append(flagErrors, cobra.MarkFlagRequired(flags, "options"))
 	packageName = flags.String("package", "", "output package name")
 	destination = flags.StringP("output", "o", "", "output file name")
