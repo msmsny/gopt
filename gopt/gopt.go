@@ -23,6 +23,7 @@ func NewGoptCommand() *cobra.Command {
 		destination   *string
 		evaluate      *bool
 		formatImports *bool
+		header        *bool
 		flagErrors    []error
 	)
 	cmds := &cobra.Command{
@@ -73,6 +74,7 @@ func NewGoptCommand() *cobra.Command {
 					Name:        *name,
 					PackageName: *packageName,
 					Evaluate:    *evaluate,
+					Header:      *header && *destination != "",
 				},
 				writer:        os.Stdout,
 				dest:          *destination,
@@ -98,6 +100,8 @@ func NewGoptCommand() *cobra.Command {
 	destination = flags.StringP("output", "o", "", "output file name")
 	evaluate = flags.Bool("evaluate", true, "output evaluateOptions")
 	formatImports = flags.Bool("format-imports", false, "format import statement by goimports")
+	header = flags.Bool("header", true, `generated code header with signature "Code generated..."
+this option is enabled only if the output option is not empty`)
 
 	return cmds
 }
@@ -107,6 +111,7 @@ type templateParams struct {
 	Options     []*templateOption
 	PackageName string
 	Evaluate    bool
+	Header      bool
 }
 
 type templateOption struct {

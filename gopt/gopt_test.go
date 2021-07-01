@@ -15,6 +15,7 @@ func TestCommand(t *testing.T) {
 		options       string
 		packageName   string
 		evaluate      bool
+		header        bool
 		fileName      string
 		formatImports bool
 	}{
@@ -82,6 +83,14 @@ func TestCommand(t *testing.T) {
 			evaluate:    true,
 			fileName:    "testdata/withlocalpackagetype.go",
 		},
+		"withHeader": {
+			name:        "sample",
+			options:     "foo:string,bar:int,baz:bool",
+			packageName: "testdata",
+			evaluate:    true,
+			header:      true,
+			fileName:    "testdata/withheader.go",
+		},
 	}
 
 	for testCase, tt := range testCases {
@@ -94,6 +103,9 @@ func TestCommand(t *testing.T) {
 			require.NoError(t, cmd.Flags().Set("output", destination))
 			if !tt.evaluate {
 				require.NoError(t, cmd.Flags().Set("evaluate", "false"))
+			}
+			if !tt.header {
+				require.NoError(t, cmd.Flags().Set("header", "false"))
 			}
 			if tt.formatImports {
 				require.NoError(t, cmd.Flags().Set("format-imports", "true"))

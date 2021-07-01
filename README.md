@@ -28,6 +28,8 @@ Flags:
   -o, --output string     output file name
       --evaluate          output evaluateOptions (default true)
       --format-imports    format import statement by goimports
+      --header            generated code header with signature "Code generated..."
+                          this option is enabled only if the output option is not empty (default true)
   -h, --help              help for gopt
 ```
 
@@ -112,6 +114,8 @@ Output file
 ```bash
 $ gopt --name sample --options foo:string,bar:int,baz:bool -o sample.go
 ```
+
+Output file includes the header with generated code [signature](https://golang.org/cmd/go/#hdr-Generate_Go_files_by_processing_source).
 
 With package name
 
